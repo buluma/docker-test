@@ -1,7 +1,42 @@
-FROM ubuntu:impish
-
+FROM centos:7
 LABEL maintainer="Michael Buluma <me@buluma.co.ke>"
 LABEL build_date="2022-02-05"
 
-ENV container docker
-ENV DEBIAN_FRONTEND noninteractive
+# Environment configuration
+ENV BUGZILLA_LIB /opt/bugzilla
+ENV BUGZILLA_WWW /var/www/html/bugzilla
+ENV GITHUB_BASE_GIT https://github.com/bugzilla/bugzilla
+ENV GITHUB_BASE_BRANCH master
+
+ADD https://raw.githubusercontent.com/miyagawa/cpanminus/master/cpanm /usr/local/bin/cpanm
+RUN chmod 755 /usr/local/bin/cpanm
+
+COPY rpm_list /rpm_list
+RUN rpm -qa --queryformat '/^%{NAME}$/ d\n' > rpm_fix.sed && \
+    sed -f rpm_fix.sed /rpm_list > /rpm_list.clean
+
+RUN yum -y -q install https://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm && \
+	yum -y -q install epel-release  && \
+	yum -y -q install `cat /rpm_list.clean` && \
+    yum clean all
+
+RUN pip install --upgrade pip rst2pdf sphinx
+
+# Clone the code repo and install dependencies
+ENV INSTALL_CPANM "cpanm -l $BUGZILLA_LIB --quiet --skip-satisfied --notest"
+RUN git clone $GITHUB_BASE_GIT -b master $BUGZILLA_WWW && \
+    cd $BUGZILLA_WWW && \
+    $INSTALL_CPANM HTML::Formatter && \
+	$INSTALL_CPANM --installdeps --with-all-features --with-recommends --without-feature oracle . && \
+    cd / && \
+	rm -rf $BUGZILLA_WWW ~/.cpanm
+RUN git clone $GITHUB_BASE_GIT -b 5.0 $BUGZILLA_WWW && \
+    cd $BUGZILLA_WWW && \
+    $INSTALL_CPANM --installdeps --with-all-features --with-recommends --without-feature oracle . && \
+    cd / && \
+	rm -rf $BUGZILLA_WWW ~/.cpanm
+RUN git clone $GITHUB_BASE_GIT -b 4.4 $BUGZILLA_WWW && \
+    cd $BUGZILLA_WWW && \
+    $INSTALL_CPANM --installdeps --with-all-features --with-recommends --without-feature oracle . && \
+    cd / && \
+	rm -rf $BUGZILLA_WWW ~/.cpanm
