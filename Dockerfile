@@ -1,5 +1,7 @@
 FROM ubuntu:impish
 
-MAINTAINER Michael Buluma
+LABEL maintainer="Michael Buluma <me@buluma.co.ke>"
+LABEL build_date="2022-02-05"
 
-LABEL Description="Ubuntu Test"
+ENV container docker
+ENV DEBIAN_FRONTEND noninteractive
