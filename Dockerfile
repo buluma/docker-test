@@ -1,1 +1,1 @@
-FROM buluma/ubuntu
+FROM ubuntu:latest
