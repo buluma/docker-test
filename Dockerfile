@@ -20,7 +20,7 @@ RUN yum -y -q install https://dev.mysql.com/get/mysql-community-release-el7-5.no
 	yum -y -q install `cat /rpm_list.clean` && \
     yum clean all
 
-RUN pip install --upgrade pip rst2pdf sphinx
+RUN pip3 install --upgrade pip rst2pdf sphinx
 
 # Clone the code repo and install dependencies
 ENV INSTALL_CPANM "cpanm -l $BUGZILLA_LIB --quiet --skip-satisfied --notest"
