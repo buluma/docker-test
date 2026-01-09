@@ -51,6 +51,7 @@ jobs:
         dockerfile-path: ./Dockerfile
         input-type: docker-daemon
         ignore-failed-scan: true
+        standalone: true
         # Sysdig inline scanner requires privileged rights
         run-as-user: root
 
